@@ -138,7 +138,7 @@ $(document).ready(function () {
 <li>individuazione dei “veri” missing values contrassegnati con “” e imputazione di NA</li>
 <li>analisi della “struttura” delle variabili e ricodifica in categorico / categorico ordinale</li>
 <li>analisi esplorative che oltre a comprendere meglio i dati hanno permesso l’individuazione di outliers</li>
-<li>imputazione dei valori mancanti secondo diverse strategie (imputazione di 0, media, media condizionata a variabile categorica, moda)</li>
+<li>imputazione dei valori mancanti secondo diverse strategie (imputazione di 0, media, mediana condizionata a variabile categorica, moda)</li>
 <li>creazione di nuove variabili: ristrutturata, Total.SF, Total.Baths</li>
 <li>trasformazione in logaritmo di alcune esplicative che da un’analisi grafica appaiono sbilanciate</li>
 <li>esclusione di alcuni predittori che risultano poco variabili</li>
@@ -150,7 +150,7 @@ $(document).ready(function () {
 <h3>References:</h3>
 <ul>
 <li><p>Imputazione dei missing e individuzioni di valori anomali seguendo <a href="http://bee-fore.s3-eu-west-1.amazonaws.com/datasets/62.txt">Data Documentation</a></p></li>
-<li><p>Analisi esplorative e creazione di variabile seguendo alcune idee di <a href="https://www.kaggle.com/skirmer/fun-with-real-estate-data">Tutorials</a> <a href="https://nycdatascience.com/blog/student-works/machine-learning/kaggle-competition-house-pricing-in-ames-iowa/">PHP</a> <a href="https://rstudio-pubs-static.s3.amazonaws.com/358187_2157f6fed1e243d998c5cae2af2eca55.html">ART</a></p></li>
+<li><p>Analisi esplorative e creazione di variabili seguendo alcune idee di <a href="https://www.kaggle.com/skirmer/fun-with-real-estate-data">Tutorials</a> <a href="https://nycdatascience.com/blog/student-works/machine-learning/kaggle-competition-house-pricing-in-ames-iowa/">PHP</a> <a href="https://rstudio-pubs-static.s3.amazonaws.com/358187_2157f6fed1e243d998c5cae2af2eca55.html">ART</a></p></li>
 <li><p>Lasso and Best Subset Selection slides - Aldo Solari <a href="https://aldosolari.github.io/DM/docs/slides/13_Lasso/13_Lasso_slides.html#1">Slides</a>;</p></li>
 </ul>
 </div>
@@ -191,7 +191,7 @@ for ( i in 1:length(FalseMissingVars)){
   combi[RowOfMiss,FalseMissingVars[i]]&lt;-FalseMissing[i]
 }
 
-# ndvidui i veri valori mancanti contrassgnati con &quot;&quot; e imputo NA
+# indviduo i veri valori mancanti contrassegnati con &quot;&quot; e imputo NA
 combi[combi==&quot;&quot;]&lt;-NA
 
 # elimino il livello fittizio &quot;&quot;
@@ -249,7 +249,7 @@ combi$Garage.Yr.Blt[which(is.na(combi$Garage.Yr.Blt)&amp; (combi$Garage.Finish==
 # mentre imputo la media per le 2 osservazioni rimanenti
 combi[is.na(combi$Garage.Yr.Blt),&quot;Garage.Yr.Blt&quot;]&lt;-round(mean(combi$Garage.Yr.Blt[-which(combi$Garage.Yr.Blt==0)],na.rm = T))
 
-#per lot.frontage imputo media condizionata al vicinato 
+#per lot.frontage imputo media condizionata al vicinato come suggerito in PHP
 RowOfMiss=which(is.na(combi[,&quot;Lot.Frontage&quot;]))
 combi$Lot.Frontage[RowOfMiss]&lt;-median(combi$Lot.Frontage[which(combi$Neighborhood==combi$Neighborhood[RowOfMiss[i]])],na.rm = T)
 
@@ -337,11 +337,13 @@ yhat = 10^(predict(fit.lasso, newdata=test))
 combi$SalePrice&lt;-as.numeric(combi$SalePrice)
 combi[(nrow(train)+1):nrow(combi),&quot;SalePrice&quot;]&lt;-yhat
 
+# Dal seguente grafico noto che le previsioni per alcune osservazioni, risultate outliers dall'analisi esplorativa, appaiono decisamente anomale (SalePrice elevatissimo)
 # combi$test&lt;-rep(1,nrow(combi))
 # combi$test[(nrow(train)+1):nrow(combi)]&lt;-2
 # plot(combi$SalePrice~combi$Gr.Liv.Area,col=combi$test)
 # text(combi$SalePrice~combi$Gr.Liv.Area, labels=combi$Gr.Liv.Area, cex= 0.7,pos=1)
 
+# per tali osservazioni inusuali sostituisco la previsione realizzata dal modello con il valore di SalePrice associato all'osservazione del train set che piu assomiglia loro.
 yhat[which(test$Gr.Liv.Area&gt;log1p(5000))]&lt;-train[which(train$Gr.Liv.Area&gt;log(4000)),&quot;SalePrice&quot;]
 combi[(nrow(train)+1):nrow(combi),&quot;SalePrice&quot;]&lt;-yhat
 #plot(combi$SalePrice~combi$Gr.Liv.Area,col=combi$test)
