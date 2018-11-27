@@ -295,7 +295,7 @@ test&lt;-combi[(nrow(train)+1):nrow(combi),]
 numeric_var &lt;- names(combi)[which(sapply(combi, is.numeric))]
 numeric_var&lt;-numeric_var[-which(numeric_var==&quot;SalePrice&quot;)]
 
-# Dalla seguente analisi graficaho scelto quali variabili trasformare n logaritmo
+# Dalla seguente analisi grafica ho scelto quali variabili trasformare in logaritmo
 # par(mfrow=c(1,2))
 # for (var in numeric_var){
 #   hist(combi[,var],main=var)
